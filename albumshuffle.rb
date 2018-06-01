@@ -78,7 +78,7 @@ class Folder
   def age
     day = 60 * 60 * 24
     month = 30 * day
-    @age || = self.timestamp / ( 6 * month)
+    @age ||= self.timestamp.to_i / ( 6 * month)
   end
 
   def age_score
@@ -90,10 +90,10 @@ class Folder
   end
 end
 
-class Album << Folder
+class Album < Folder
 end
 
-class Picture << Folder
+class Picture < Folder
 end
 
 #-----------------------------------------------------------
@@ -139,7 +139,7 @@ def list_pictures
 
   Dir.glob(Config.picture_glob).each do |pic|
     next if pic =~ /Processed-Albums/
-    next if seen_recently?(albums, Config.picture_threshold)
+    next if seen_recently?(pic, Config.picture_threshold)
     pictures << Picture.new(pic)
   end
   return pictures
