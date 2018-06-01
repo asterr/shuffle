@@ -6,7 +6,7 @@ include Win32
 #-----------------------------------------------------------
 # Config Section
 #-----------------------------------------------------------
-module Config
+module MyConfig
   class << self
     attr_accessor :srcdirs
     attr_accessor :target
@@ -101,15 +101,15 @@ end
 #-----------------------------------------------------------
 def history
   return @current_history if @current_history
-  if File.readable?(Config.history)
-    @current_history = JSON.parse(File.read(Config.history))
+  if File.readable?(MyConfig.history)
+    @current_history = JSON.parse(File.read(MyConfig.history))
   else
     @current_history = Hash.new
   end
 end
 
 def save_history
-  File.open(Config.history, 'w') do |f|
+  File.open(MyConfig.history, 'w') do |f|
     f.puts JSON.generate(history)
   end
 end
@@ -124,10 +124,10 @@ end
 def list_albums
   albums = DatedArray.new
 
-  Config.srcdirs.each do |dir|
+  MyConfig.srcdirs.each do |dir|
     Dir.glob(File.join(dir,'*')).each do |album|
       next if album =~ /\/OLD$/
-      next if seen_recently?(album, Config.album_threshold)
+      next if seen_recently?(album, MyConfig.album_threshold)
       albums << Album.new(album)
     end
   end
@@ -137,9 +137,9 @@ end
 def list_pictures
   pictures = DatedArray.new
 
-  Dir.glob(Config.picture_glob).each do |pic|
+  Dir.glob(MyConfig.picture_glob).each do |pic|
     next if pic =~ /Processed-Albums/
-    next if seen_recently?(pic, Config.picture_threshold)
+    next if seen_recently?(pic, MyConfig.picture_threshold)
     pictures << Picture.new(pic)
   end
   return pictures
@@ -147,7 +147,7 @@ end
 
 def new_folder
   time = Time.now.strftime('%Y%m%dT%H%M')
-  path = File.join(Config.target,time)
+  path = File.join(MyConfig.target,time)
   Dir.mkdir(path)
   return path
 end 
