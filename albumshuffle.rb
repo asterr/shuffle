@@ -188,16 +188,36 @@ end
 # Main
 #-----------------------------------------------------------
 
-puts "Generating New Shuffled Album"
+case ARGV[0]
+when /^stat/
+  # stats
+  filtered_albums = list_albums.select{ |a| seen_recently?(a, MyConfig.album_threshold) }
+  filtered_pictures = list_pictures.select{ |p| seen_recently?(p, MyConfig.picture_threshold) }
 
+  puts "History Size:        #{history.keys.count}"
+  puts "Eligible Albums:     #{list_albums.count}"
+  puts "Elibigle Pictures:   #{list_pictures.count}"
+  puts "Filtered Albums:     #{filtered_albums.count}"
+  puts "Filtered Pictures:   #{filtered_pictures.count}"
 
-pictures = list_pictures
-albums = list_albums
-folder = new_folder
+when /^lista/
+  # listalbums
+  puts "Listing New Albums"
+  list_pictures.sort_random_date do |pic|
+    puts "#{pic.timestamp}: #{pic.full_path}"
+  end
 
-link_random_pics(folder,pictures)
-link_random_albums(folder,albums)
-save_history
+else
+  puts "Generating New Shuffled Album"
 
-# Open Folder
-system("explorer C:\\Users\\asterr\\Pictures\\Shuffled")
+  pictures = list_pictures
+  albums = list_albums
+  folder = new_folder
+
+  link_random_pics(folder,pictures)
+  link_random_albums(folder,albums)
+  save_history
+
+  # Open Folder
+  system("explorer C:\\Users\\asterr\\Pictures\\Shuffled")
+end
