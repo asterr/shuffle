@@ -191,8 +191,8 @@ end
 case ARGV[0]
 when /^stat/
   # stats
-  filtered_albums = list_albums.select{ |a| seen_recently?(a, MyConfig.album_threshold) }
-  filtered_pictures = list_pictures.select{ |p| seen_recently?(p, MyConfig.picture_threshold) }
+  filtered_albums = list_albums.select{ |a| seen_recently?(a.fullpath, MyConfig.album_threshold) }
+  filtered_pictures = list_pictures.select{ |p| seen_recently?(p.fullpath, MyConfig.picture_threshold) }
 
   puts "History Size:        #{history.keys.count}"
   puts "Eligible Albums:     #{list_albums.count}"
@@ -203,8 +203,8 @@ when /^stat/
 when /^lista/
   # listalbums
   puts "Listing New Albums"
-  list_pictures.sort_random_date do |pic|
-    puts "#{pic.timestamp}: #{pic.full_path}"
+  list_pictures.sort_random_date.each do |pic|
+    puts "#{pic.timestamp}: #{pic.fullpath}"
   end
 
 else
