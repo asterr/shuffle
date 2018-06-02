@@ -179,7 +179,7 @@ end
 
 def link_random_pics(folder,pictures)
   picfolder = folder
-  pictures.sort_random_date[0..14].each do |pic|
+  list_pictures.sort_random_date[0..14].each do |pic|
     history[pic.fullpath] = Time.now.to_i
     key  = rand(1000).to_s + '-' + pic.year
     keyed_name= "0000" + key + '-' + pic.name + '.lnk'
