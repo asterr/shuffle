@@ -109,7 +109,7 @@ def history
 end
 
 def last_seen(path)
-  history[path] || Time.at(0)
+  history[path] || 0
 end
 
 def save_history
