@@ -157,7 +157,7 @@ end
 
 def list_pictures
   results = DatedArray.new
-  list_all_pictures.reject{ |pic| seen_recently?(pic, MyConfig.picture_threshold) }.each do |p|
+  list_all_pictures.reject{ |pic| seen_recently?(pic.fullpath, MyConfig.picture_threshold) }.each do |p|
     results << p
   end
   return results
