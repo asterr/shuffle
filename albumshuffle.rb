@@ -108,6 +108,10 @@ def history
   end
 end
 
+def last_seen(path)
+  history[path] || Time.at(0)
+end
+
 def save_history
   File.open(MyConfig.history, 'w') do |f|
     f.puts JSON.generate(history)
@@ -116,9 +120,7 @@ end
 
 def seen_recently?(file_name,day_threshold)
   day = 60 * 60 * 24
-  if last_seen = history[file_name]
-    Time.at(last_seen) > (Time.now - (day_threshold * day))
-  end
+  Time.at(last_seen) > (Time.now - (day_threshold * day))
 end
 
 def list_albums
@@ -200,11 +202,18 @@ when /^stat/
   puts "Filtered Albums:     #{filtered_albums.count}"
   puts "Filtered Pictures:   #{filtered_pictures.count}"
 
+when /^listp/
+  # listpictures
+  puts "Listing New Pictures"
+  list_pictures.sort_by{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |pic|
+    puts "#{last_seen(pic.fullpath)}: #{pic.fullpath}"
+  end
+
 when /^lista/
   # listalbums
   puts "Listing New Albums"
-  list_pictures.sort_random_date.each do |pic|
-    puts "#{pic.timestamp}: #{pic.fullpath}"
+  list_albums.sort_by{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |album|
+    puts "#{last_seen(album.fullpath)}: #{album.fullpath}"
   end
 
 else
