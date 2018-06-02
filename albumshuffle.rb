@@ -120,7 +120,7 @@ end
 
 def seen_recently?(file_name,day_threshold)
   day = 60 * 60 * 24
-  Time.at(last_seen) > (Time.now - (day_threshold * day))
+  Time.at(last_seen(file_name)) > (Time.now - (day_threshold * day))
 end
 
 def list_all_albums
@@ -201,7 +201,7 @@ case ARGV[0]
 when /^stat/
   # stats
   filtered_albums = list_all_albums.select{ |a| seen_recently?(a.fullpath, MyConfig.album_threshold) }
-  filtered_pictures = list__all_pictures.select{ |p| seen_recently?(p.fullpath, MyConfig.picture_threshold) }
+  filtered_pictures = list_all_pictures.select{ |p| seen_recently?(p.fullpath, MyConfig.picture_threshold) }
 
   puts "History Size:        #{history.keys.count}"
   puts "Eligible Albums:     #{list_albums.count}"
@@ -213,20 +213,21 @@ when /^listp/
   # listpictures
   puts "Listing New Pictures"
   list_pictures.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |pic|
-    puts "#{last_seen(pic.fullpath)}: #{pic.fullpath}"
+    puts "#{Time.at(last_seen(pic.fullpath))}: #{pic.fullpath}"
   end
 
 when /^lista/
   # listalbums
   puts "Listing New Albums"
   list_albums.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |album|
-    puts "#{last_seen(album.fullpath)}: #{album.fullpath}"
+    puts "#{Time.at(last_seen(album.fullpath))}: #{album.fullpath}"
   end
 
 when /^lists/
   # listseen
   puts "Listing Seen Items"
-  history.sort{|a,b| b[1] <=> a[1]}.each_pair do |path, timestamp|
+  history.sort{|a,b| b[1] <=> a[1]}.each do |path, timestamp|
+    next unless seen_recently?(path, MyConfig.picture_threshold)
     puts "#{Time.at(timestamp)}: #{path}"
   end
 
