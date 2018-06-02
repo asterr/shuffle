@@ -137,7 +137,11 @@ def list_all_albums
 end
 
 def list_albums
-  list_all_albums.reject{ |album| seen_recently?(album.fullpath, MyConfig.album_threshold) }
+  results = DatedArray.new
+  list_all_albums.reject{ |album| seen_recently?(album.fullpath, MyConfig.album_threshold) }.each do |a|
+    results << a
+  end
+  return results
 end
 
 def list_all_pictures
@@ -152,11 +156,15 @@ def list_all_pictures
 end
 
 def list_pictures
-  list_all_pictures.reject{ |pic| seen_recently?(pic, MyConfig.picture_threshold) }
+  results = DatedArray.new
+  list_all_pictures.reject{ |pic| seen_recently?(pic, MyConfig.picture_threshold) }.each do |p|
+    results << p
+  end
+  return results
 end
 
 def new_folder
-  time = Time.now.strftime('%Y%m%dT%H%M')
+  time = Time.now.strftime('%Y%m%dT%H%M%S')
   path = File.join(MyConfig.target,time)
   Dir.mkdir(path)
   return path
@@ -237,7 +245,6 @@ else
   pictures = list_pictures
   albums = list_albums
   folder = new_folder
-
   link_random_pics(folder,pictures)
   link_random_albums(folder,albums)
   save_history
