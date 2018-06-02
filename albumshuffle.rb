@@ -123,28 +123,36 @@ def seen_recently?(file_name,day_threshold)
   Time.at(last_seen) > (Time.now - (day_threshold * day))
 end
 
-def list_albums
-  albums = DatedArray.new
+def list_all_albums
+  return @albums if @albums
+  @albums = DatedArray.new
 
   MyConfig.srcdirs.each do |dir|
     Dir.glob(File.join(dir,'*')).each do |album|
       next if album =~ /\/OLD$/
-      next if seen_recently?(album, MyConfig.album_threshold)
-      albums << Album.new(album)
+      @albums << Album.new(album)
     end
   end
-  return albums
+  return @albums
 end
 
-def list_pictures
-  pictures = DatedArray.new
+def list_albums
+  list_all_albums.reject{ |album| seen_recently?(album.fullpath, MyConfig.album_threshold) }
+end
+
+def list_all_pictures
+  return @pictures if @pictures
+  @pictures = DatedArray.new
 
   Dir.glob(MyConfig.picture_glob).each do |pic|
     next if pic =~ /Processed-Albums/
-    next if seen_recently?(pic, MyConfig.picture_threshold)
-    pictures << Picture.new(pic)
+    @pictures << Picture.new(pic)
   end
-  return pictures
+  return @pictures
+end
+
+def list_pictures
+  list_all_pictures.reject{ |pic| seen_recently?(pic, MyConfig.picture_threshold) }
 end
 
 def new_folder
@@ -153,7 +161,6 @@ def new_folder
   Dir.mkdir(path)
   return path
 end 
-
 
 def link_random_albums(folder,albums)
   albums.sort_random_date[0..2].each do |album|
@@ -193,8 +200,8 @@ end
 case ARGV[0]
 when /^stat/
   # stats
-  filtered_albums = list_albums.select{ |a| seen_recently?(a.fullpath, MyConfig.album_threshold) }
-  filtered_pictures = list_pictures.select{ |p| seen_recently?(p.fullpath, MyConfig.picture_threshold) }
+  filtered_albums = list_all_albums.select{ |a| seen_recently?(a.fullpath, MyConfig.album_threshold) }
+  filtered_pictures = list__all_pictures.select{ |p| seen_recently?(p.fullpath, MyConfig.picture_threshold) }
 
   puts "History Size:        #{history.keys.count}"
   puts "Eligible Albums:     #{list_albums.count}"
@@ -205,15 +212,22 @@ when /^stat/
 when /^listp/
   # listpictures
   puts "Listing New Pictures"
-  list_pictures.sort_by{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |pic|
+  list_pictures.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |pic|
     puts "#{last_seen(pic.fullpath)}: #{pic.fullpath}"
   end
 
 when /^lista/
   # listalbums
   puts "Listing New Albums"
-  list_albums.sort_by{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |album|
+  list_albums.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |album|
     puts "#{last_seen(album.fullpath)}: #{album.fullpath}"
+  end
+
+when /^lists/
+  # listseen
+  puts "Listing Seen Items"
+  history.sort{|a,b| b[1] <=> a[1]}.each_pair do |path, timestamp|
+    puts "#{Time.at(timestamp)}: #{path}"
   end
 
 else
