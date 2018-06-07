@@ -78,7 +78,7 @@ class Folder
   def age
     day = 60 * 60 * 24
     month = 30 * day
-    @age ||= self.timestamp.to_i / ( 6 * month)
+    @age ||= self.timestamp.to_i / ( 1 * month)
   end
 
   def age_score
@@ -221,14 +221,14 @@ when /^listp/
   # listpictures
   puts "Listing New Pictures"
   list_pictures.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |pic|
-    puts "#{Time.at(last_seen(pic.fullpath))}: #{pic.fullpath}"
+    puts "#{Time.at(last_seen(pic.fullpath))}: #{pic.age_score}: #{pic.fullpath}"
   end
 
 when /^lista/
   # listalbums
   puts "Listing New Albums"
   list_albums.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |album|
-    puts "#{Time.at(last_seen(album.fullpath))}: #{album.fullpath}"
+    puts "#{Time.at(last_seen(album.fullpath))}: #{album.age_score}: #{album.fullpath}"
   end
 
 when /^lists/
