@@ -82,7 +82,7 @@ class Folder
   end
 
   def age_score
-    @age_score ||= rand(100) / (Math.log2(4 + age/4))
+    @age_score ||= rand(100) / (Math.log2(2 + age/4))
   end
 
   def year
@@ -221,14 +221,14 @@ when /^listp/
   # listpictures
   puts "Listing New Pictures"
   list_pictures.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |pic|
-    puts "#{Time.at(last_seen(pic.fullpath))}: #{pic.age_score}: #{pic.fullpath}"
+    puts "#{Time.at(last_seen(pic.fullpath))}: #{pic.age_score}: #{pic.age}: #{pic.fullpath}"
   end
 
 when /^lista/
   # listalbums
   puts "Listing New Albums"
   list_albums.sort{|a,b| last_seen(a.fullpath) <=> last_seen(b.fullpath) }.each do |album|
-    puts "#{Time.at(last_seen(album.fullpath))}: #{album.age_score}: #{album.fullpath}"
+    puts "#{Time.at(last_seen(album.fullpath))}: #{album.age_score}: #{album.age}: #{album.fullpath}"
   end
 
 when /^lists/
