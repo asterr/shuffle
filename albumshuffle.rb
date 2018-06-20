@@ -78,11 +78,11 @@ class Folder
   def age
     day = 60 * 60 * 24
     month = 30 * day
-    @age ||= self.timestamp.to_i / ( 1 * month)
+    @age ||= (Time.now.to_i - self.timestamp.to_i) / ( 1 * month)
   end
 
   def age_score
-    @age_score ||= rand(100) / (Math.log2(2 + age/4))
+    @age_score ||= rand(100) / (Math.log2(4 + age/4))
   end
 
   def year
