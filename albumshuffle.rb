@@ -35,7 +35,7 @@ module MyConfig
     end
 
     def album_threshold
-      @album_threshold ||= 180
+      @album_threshold ||= 210
     end
 
     def picture_threshold
