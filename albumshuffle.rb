@@ -82,7 +82,7 @@ class Folder
   end
 
   def age_score
-    @age_score ||= rand(100) / (Math.log2(4 + age/4))
+    @age_score ||= rand(100) / (Math.log2(8 + age/4))
   end
 
   def year
