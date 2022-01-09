@@ -98,7 +98,6 @@ end
 class Album < Folder
   def list_pictures
     pictures = []
-    puts "List_Pictures: Full Path: #{fullpath}"
     Dir.glob(fullpath + '/*.jpg' ).each do |pic|
       pictures << Picture.new(pic)
     end
@@ -224,16 +223,14 @@ end
 
 def copy_photos(folder, pictures)
   dest_dir = folder.gsub('/','\\')
-  puts("Dest dir: #{dest_dir}")
+  puts("Copying all photos to: #{dest_dir}")
   FileUtils.rm_rf(dest_dir)
   Dir.mkdir(dest_dir)
-
-  puts pictures.count
 
   # Copy pictures
   pictures.each do |pic|
    source = pic.fullpath.gsub('/', '\\')
-   puts("Copying #{source} to #{dest_dir}")
+   # puts("Copying #{source} to #{dest_dir}")
    FileUtils.copy(source, dest_dir)
   end
 end
@@ -284,7 +281,7 @@ else
   folder = new_folder
   photo_list = link_random_pics(folder,pictures)
   photo_list += link_random_albums(folder,albums)
-  #save_history
+  save_history
   # Build copy directory (for slideshow tools)
   copy_photos(MyConfig.current_copy, photo_list)
 
