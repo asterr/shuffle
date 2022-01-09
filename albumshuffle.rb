@@ -32,7 +32,7 @@ module MyConfig
     end
 
     def current_copy
-      @current_copy ||= "C:/Users/asterr/Pictures/shuffle_latest"
+      @current_copy ||= "C:/Users/asterr/Pictures/Shuffled-Latest"
     end
 
     def history
@@ -93,17 +93,13 @@ class Folder
   def year
     timestamp.year.to_s
   end
-
-  def copy_to_temp(copy_dir)
-    File.copy(@fullpath, copy_dir)
-  end
 end
 
 class Album < Folder
   def list_pictures
     pictures = []
-
-    Dir.glob(@fullpath + '/*.jpg' ).each do |pic|
+    puts "List_Pictures: Full Path: #{fullpath}"
+    Dir.glob(fullpath + '/*.jpg' ).each do |pic|
       pictures << Picture.new(pic)
     end
     return pictures
@@ -227,12 +223,18 @@ def link_random_pics(folder,pictures)
 end
 
 def copy_photos(folder, pictures)
-  # Wipe directory
-  FileUtils.rm Dir.glob('#{folder}/*')
+  dest_dir = folder.gsub('/','\\')
+  puts("Dest dir: #{dest_dir}")
+  FileUtils.rm_rf(dest_dir)
+  Dir.mkdir(dest_dir)
+
+  puts pictures.count
 
   # Copy pictures
   pictures.each do |pic|
-   File.copy(pic.fullpath, folder)
+   source = pic.fullpath.gsub('/', '\\')
+   puts("Copying #{source} to #{dest_dir}")
+   FileUtils.copy(source, dest_dir)
   end
 end
 
@@ -282,7 +284,7 @@ else
   folder = new_folder
   photo_list = link_random_pics(folder,pictures)
   photo_list += link_random_albums(folder,albums)
-  save_history
+  #save_history
   # Build copy directory (for slideshow tools)
   copy_photos(MyConfig.current_copy, photo_list)
 
