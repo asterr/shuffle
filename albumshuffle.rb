@@ -14,6 +14,7 @@ module MyConfig
     attr_accessor :album_threshold
     attr_accessor :picture_threshold
     attr_accessor :picture_glob
+    attr_accessor :current_copy
 
     def srcdirs
       @srcdirs ||= [
@@ -28,6 +29,10 @@ module MyConfig
 
     def target
       @target = "C:/Users/asterr/Pictures/shuffled"
+    end
+
+    def current_copy
+      @current_copy ||= "C:/Users/asterr/Pictures/shuffle_latest"
     end
 
     def history
@@ -88,9 +93,21 @@ class Folder
   def year
     timestamp.year.to_s
   end
+
+  def copy_to_temp(copy_dir)
+    File.copy(@fullpath, copy_dir)
+  end
 end
 
 class Album < Folder
+  def list_pictures
+    pictures = []
+
+    Dir.glob(@fullpath + '/*.jpg' ).each do |pic|
+      pictures << Picture.new(pic)
+    end
+    return pictures
+  end
 end
 
 class Picture < Folder
@@ -171,6 +188,7 @@ def new_folder
 end 
 
 def link_random_albums(folder,albums)
+  linked_photos = []
   albums.sort_random_date[0..2].each do |album|
     history[album.fullpath] = Time.now.to_i
     key = rand(1000).to_s
@@ -181,12 +199,17 @@ def link_random_albums(folder,albums)
       s.path              = album.fullpath
       s.show_cmd          = Shortcut::SHOWNORMAL
       s.working_directory = 'c:/'
+    end
+    album.list_pictures.each do |picture|
+      linked_photos << picture
     end    
   end
+  return linked_photos
 end
 
 def link_random_pics(folder,pictures)
   picfolder = folder
+  linked_photos = []
   list_pictures.sort_random_date[0..14].each do |pic|
     history[pic.fullpath] = Time.now.to_i
     key  = rand(1000).to_s + '-' + pic.year
@@ -198,6 +221,18 @@ def link_random_pics(folder,pictures)
       s.show_cmd          = Shortcut::SHOWNORMAL
       s.working_directory = 'c:/'
     end    
+    linked_photos << pic
+  end
+  return linked_photos
+end
+
+def copy_photos(folder, pictures)
+  # Wipe directory
+  FileUtils.rm Dir.glob('#{folder}/*')
+
+  # Copy pictures
+  pictures.each do |pic|
+   File.copy(pic.fullpath, folder)
   end
 end
 
@@ -245,9 +280,11 @@ else
   pictures = list_pictures
   albums = list_albums
   folder = new_folder
-  link_random_pics(folder,pictures)
-  link_random_albums(folder,albums)
+  photo_list = link_random_pics(folder,pictures)
+  photo_list += link_random_albums(folder,albums)
   save_history
+  # Build copy directory (for slideshow tools)
+  copy_photos(MyConfig.current_copy, photo_list)
 
   # Open Folder
   system("explorer C:\\Users\\asterr\\Pictures\\Shuffled")
