@@ -114,7 +114,7 @@ end
 def history
   return @current_history if @current_history
   if File.readable?(MyConfig.history)
-    @current_history = JSON.parse(File.read(MyConfig.history))
+    @current_history = JSON.parse(File.read(MyConfig.history, :encoding => "UTF-8"))
   else
     @current_history = Hash.new
   end
