@@ -283,7 +283,7 @@ else
   photo_list += link_random_albums(folder,albums)
   save_history
   # Build copy directory (for slideshow tools)
-  copy_photos(MyConfig.current_copy, photo_list)
+  #copy_photos(MyConfig.current_copy, photo_list)
 
   # Open Folder
   system("explorer C:\\Users\\asterr\\Pictures\\Shuffled")
